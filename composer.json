@@ -1,0 +1,16 @@
+{
+    "name": "dawn/asset",
+    "description": "php load fronted asset",
+    "type": "Library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "dawn",
+            "email": "1960754013@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "phpunit/phpunit": "^7.2"
+    }
+}
