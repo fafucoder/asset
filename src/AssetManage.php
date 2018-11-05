@@ -17,7 +17,7 @@ class AssetManager {
     public $registered = array();
 
     /**
-     * Enqueued asset
+     * Enqueued asset.
      *
      * @var array
      */
@@ -52,73 +52,15 @@ class AssetManager {
                 $this->register($name, $asset);
             }
         } else {
-            //如果是class就实例化，否则等到enqueue的时候再实例化
-            if (array_key_exists($handle, $this->registered)) {
-                return;
-            }
-
-            if (class_exist($handle)) {
-                $handle = new $handle();
-            }
-
-            if ($handle instanceof Asset) {
-                $this->registered[$handle->getName()] = $handle;
-            } else {
-                $this->registered[$handle] = $asset;
-            }
-        }
-    }
-
-    /**
-     * Enqueue asset
-     *
-     * @param mixed $handle
-     * @param array $asset
-     * 
-     * @return void
-     */
-    public function enqueue($handle, $asset = array()) {
-        if (is_array($handle)) {
-            if (array_key_exists('name', $handle)) {
-                $this->enqueue($handle['name'], $handle);
-            }
-
-            foreach ($handle as $name => $asset) {
-                $this->enqueue($name, $asset);
-            }
-        } else {
-            //如果是class就实例化，否则等到enqueue的时候再实例化
-            if (array_key_exists($handle, $this->enqueued)) {
-                return;
-            }
-
-            if (class_exist($handle)) {
+            if (class_exists($handle)) {
                 $handle = new $handle();
             } else {
                 $handle = new Asset($asset);
             }
 
             if ($handle instanceof Asset) {
-                if (!array_key_exists($handle->getName(), $this->registered)) {
-                    $this->registered[$handle->getName()] = $handle;
-                }
-
-                $this->enqueued[$handle->getName()] = $handle;
-
+                $this->registered[$handle->getName()] = $handle;
             }
-        }
-    }
-
-    /**
-     * Dequeue asset
-     *
-     * @param string $handle
-     * 
-     * @return void
-     */
-    public function dequeue($handle) {
-        if ($this->has($handle, 'enqueued')) {
-            unset($this->enqueued[$handle]);
         }
     }
 
@@ -135,27 +77,98 @@ class AssetManager {
         }
     }
 
-    public function render($handle) {
-
-    }
-
     /**
      * Check if asset registered or enqueued
      *
      * @param string $handle
-     * @param string $done
      * 
      * @return boolean
      */
-    public function has($handle, $done="registered") {
-        switch ($done) {
-            case 'registered':
-                return isset($this->registered[$handle]);
-                break;
-            case "enqueued":
-                return isset($this->enqueued[$handle]);
-            default:
-                break;
+    public function has($handle) {
+        return isset($this->registered[$handle]);
+    }
+
+    /**
+     * Get registered asset.
+     *
+     * @param string $handle
+     * @return null|object
+     */
+    public function get($handle) {
+        if ($this->has($handle)) {
+            return $this->registered[$handle];
         }
+    }
+
+    /**
+     * Get all registered asset
+     *
+     * @return void
+     */
+    public function all() {
+        return $this->registered;
+    }
+
+    /**
+     * Enqueue asset
+     *
+     * @param string $handle
+     * @param array $asset
+     * 
+     * @return string
+     */
+    public function enqueue($handle, $asset = array()) {
+        if (array_key_exists($handle, $this->enqueued)) {
+            return $this->enqueued[$handle];
+        }
+
+        $output = '';
+        $this->register($handle, $asset);
+
+        $dependencs = $this->dependency($handle);
+        foreach ($dependencs as $dependent => $asset) {
+            $output .= $asset->render();
+        }
+        $output .= $this->get($handle)->render();
+
+        $this->enqueued[$handle] = $output;
+        return $output;
+    }
+
+    /**
+     * Enqueue asset
+     *
+     * @param array $asset
+     * @return void
+     */
+    public function enqueues($asset = array()) {
+        $output = '';
+        foreach ($asset as $handle => $a) {
+            $output .= $this->enqueue($handle, $a);
+        }
+
+        return $output;
+    }
+
+    /**
+     * Get handle all dependency
+     *
+     * @param string $handle
+     * @return void
+     */
+    protected function dependency($handle, &$dependens = array()) {
+        if ($asset = $this->get($handle)) {
+            $dependency = $asset->getDependency();
+
+            foreach ($dependency as $dep) {
+                if ($this->has($dep)) {
+                    $this->dependency($dep, $dependens);
+
+                    $dependens[$handle] = $asset;
+                }
+            }
+        }
+
+        return array_unique($dependens);
     }
 }
