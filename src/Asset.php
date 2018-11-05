@@ -1,20 +1,27 @@
 <?php
-namespace Dawn\Asset;
+namespace Dawn;
 
 class Asset {
 	/**
-	 * The asset base url.
+	 * Base url
 	 * 
 	 * @var string
 	 */
-	public $baseUrl;
+	public $url;
 
 	/**
-	 * The asset base path.
+	 * Base path
 	 * 
 	 * @var string
 	 */
-	public $basePath;
+	public $path;
+
+	/**
+	 * Src 
+	 *
+	 * @var string
+	 */
+	public $src;
 
 	/**
 	 * The script assets.
@@ -31,65 +38,27 @@ class Asset {
 	public $css = array();
 
 	/**
-	 * Set asset base url.
-	 * 
-	 * @param string $base_url 
+	 * the asset dependency
+	 *
+	 * @var array
 	 */
-	public function setBaseUrl($base_url) {
-		$this->baseUrl = $base_url;
-	}
+	public $dependency = array();
 
 	/**
-	 * Get asset base url.
-	 * 
-	 * @return string 
+	 * version
+	 *
+	 * @var string
 	 */
-	public function getBaseUrl() {
-		return $this->baseUrl;
-	}
+	public $version = '1.0.0';
 
 	/**
-	 * Set asset base path.
-	 * 
-	 * @param string $base_path 
+	 * Undocumented function
+	 *
+	 * @param array $config
 	 */
-	public function setBasePath($base_path) {
-		$this->basePath = $base_path;
-	}
-
-	/**
-	 * Get asset base path.
-	 * 
-	 * @return string 
-	 */
-	public function getBasePath() {
-		return $this->basePath;
-	}
-
-	/**
-	 * Get current asset url.
-	 * 
-	 * @return string 
-	 */
-	public function assetUrl() {
-
-	}
-
-	/**
-	 * Get current asset path.
-	 * 
-	 * @return string 
-	 */
-	public function assetPath() {
-
-	}
-
-	/**
-	 * Output the asset.
-	 * 
-	 * @return string 
-	 */
-	public function render() {
-
+	public function __construct($config = array()) {
+		foreach ($config as $key => $value) {
+			$this->$key = $value;
+		}
 	}
 }
