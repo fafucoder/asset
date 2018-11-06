@@ -17,13 +17,6 @@ class Asset {
 	public $path;
 
 	/**
-	 * Src 
-	 *
-	 * @var string
-	 */
-	public $src;
-
-	/**
 	 * The script assets.
 	 * 
 	 * @var array
@@ -84,7 +77,7 @@ class Asset {
 	 *
 	 * @var mixed
 	 */
-	public $inline;
+	public $inline = array();
 
 	/**
 	 * Style media type
@@ -92,6 +85,13 @@ class Asset {
 	 * @var string
 	 */
 	public $media = 'screen';
+
+	/**
+	 * Conditon
+	 *
+	 * @var string
+	 */
+	public $condition;
 
 	/**
 	 * Undocumented function
@@ -132,15 +132,116 @@ class Asset {
 		$this->$name = $value;
 	}
 
+	/**
+	 * Render style and script
+	 *
+	 * @return void
+	 */
 	public function render() {
+		$condition_before = $condition_after = '';
+		if ($this->condition) {
+			$condition_before = "<!--[if {$conditional}]>\n";
+			$condition_after = "<![endif]-->\n";
+		}
 
+		$inline_before = $inline_after = '';
+		foreach ($this->inline as $type => $data) {
+			if ($type === 'js') {
+				extract($this->inlineScript($data, $inline_before, $inline_after), EXTR_PREFIX_ALL, 'inline');
+			}
+
+			if ($type === 'css') {
+				extract($this->inlineStyle($data, $inline_before, $inline_after), EXTR_PREFIX_ALL, 'inline');
+			}
+		}
+
+		$scripts = '';
+		foreach ($this->js as $script) {
+			$scripts .= $this->renderScript($script);
+		}
+
+		$styles = '';
+		foreach ($this->css as $style) {
+			$styles .= $this->renderStyle($style);
+		}
+
+		return "{$condition_bofore}{$inline_before}{$styles}{$scripts}{$inline_after}{$condition_after}";
 	}
 
+	//@TODO
 	public function localize($name, $data = array()) {
 
 	}
 
-	public function inline() {
+	public function inline($data, $position = 'after', $type = 'js') {
+		$this->inline[$type] = array(
+			'data' => $data,
+			'position' => $position,
+		);
+	}
 
+	public function inlineScript($data = array(), $inline_before = '', $inline_after = '') {
+		$content = '';
+
+		if (isset($data['data'])) {
+			$content = sprintf("<script type='text/javascript'>\n%s\n</script>\n", $data['data']);
+		}
+
+		if ($data['position'] === 'before') {
+			$inline_before .= $content;
+		} else {
+			$inline_after .= $content;
+		}
+		
+		return array($inline_before, $inline_after);
+	}
+
+	public function inlineStyle($data = array(), $inline_before = '', $inline_after = '') {
+		$content = '';
+		if (isset($data['data'])) {
+			$content = sprintf( "<style type='text/css'>\n%s\n</style>\n", $data['data']);
+		}
+
+		if ($data['position'] === 'before') {
+			$inline_before .= $content;
+		} else {
+			$inline_after .= $content;
+		}
+
+		return array($inline_before, $inline_after);
+	}
+
+	public function renderStyle($css) {
+		$css = $this->getAssetPath($css);
+
+		if ($this->version) {
+			$css = sprintf('%s?version=%s', $css, $this->version);
+		}
+
+		return sprintf("<link type='text/css' src='%s' media ='%s'>", $css, $this->media);
+	}
+
+	public function renderScript($js) {
+		$js = $this->getAssetPath($js);
+
+		if ($this->version) {
+			$js = sprintf('%s?version=%s', $js, $this->version);
+		}
+
+		return sprintf("<script type='text/javascript' src='%s' async=%s defer=%s></script>", $js, $this->async, $this->defer);
+	}
+
+	public function getAssetPath($asset) {
+		if (preg_match("#^(https|http|ftp)?://#", $asset)) {
+			return $asset;
+		}
+
+		if ($this->url) {
+			return rtrim($this->url , '/\\') . '/' . $asset;
+		}
+
+		if ($this->path) {
+			return rtrim($this->path , '/\\') . '/' . $asset;
+		}
 	}
 }
