@@ -3,24 +3,18 @@
     "description": "php load fronted asset",
     "type": "Library",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "dawn",
-            "email": "1960754013@qq.com"
-        }
-    ],
+    "authors": [{
+        "name": "dawn",
+        "email": "1960754013@qq.com"
+    }],
     "require": {
         "php": ">=7.0",
         "phpunit/phpunit": "^7.2"
     },
     "autoload": {
         "psr-4": {
-            "Dawn\\Asset\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-          "Dawn\\Asset\\Tests\\": "tests/"
+            "Dawn\\": "src/",
+            "Dawn\\Tests\\": "tests/"
         }
     }
 }

@@ -112,27 +112,43 @@ class Asset {
 	 * @return mixed
 	 */
 	public function __get($name) {
-		$name = str_replace('get', '', $name);
-		$name = strtolower(trim($name, ''));
-
 		if (isset($this->$name)) {
 			return $this->$name;
 		}
 	}
 
 	/**
-	 * Set magix function.
+	 * Set magic function.
 	 *
 	 * @param string $name
 	 * @param mixed $value
 	 */
 	public function __set($name, $value) {
-		$name = strtolower(str_replace('set', '', $name));
-
 		$this->$name = $value;
 	}
 
 	/**
+	 * Call magic function.
+	 *
+	 * @param string $name
+	 * @param mixed $arguments
+	 * 
+	 * @return mixed
+	 */
+	public function __call($name, $arguments) {
+		if (false !== strpos($name, 'get')) {
+			$name =strtolower(str_replace('get', '', $name));
+			return $this->$name;
+		}
+
+		if (false !== strpos($name, 'set')) {
+			$name = strtolower(str_replace('set', '', $name));
+			list($this->$name) = $arguments;
+		}
+	}
+
+	/**
+	 * 
 	 * Render style and script
 	 *
 	 * @return void
@@ -165,7 +181,7 @@ class Asset {
 			$styles .= $this->renderStyle($style);
 		}
 
-		return "{$condition_bofore}{$inline_before}{$styles}{$scripts}{$inline_after}{$condition_after}";
+		return "{$condition_before}{$inline_before}{$styles}{$scripts}{$inline_after}{$condition_after}";
 	}
 
 	//@TODO
@@ -218,7 +234,7 @@ class Asset {
 			$css = sprintf('%s?version=%s', $css, $this->version);
 		}
 
-		return sprintf("<link type='text/css' src='%s' media ='%s'>", $css, $this->media);
+		return sprintf("<link type='text/css' src='%s' media ='%s' />\n", $css, $this->media);
 	}
 
 	public function renderScript($js) {
@@ -228,7 +244,7 @@ class Asset {
 			$js = sprintf('%s?version=%s', $js, $this->version);
 		}
 
-		return sprintf("<script type='text/javascript' src='%s' async=%s defer=%s></script>", $js, $this->async, $this->defer);
+		return sprintf("<script type='text/javascript' src='%s' %s %s></script>\n", $js, $this->async ? 'async=true' : false, $this->defer ? 'defer=true' : false);
 	}
 
 	public function getAssetPath($asset) {

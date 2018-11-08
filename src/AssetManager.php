@@ -156,19 +156,20 @@ class AssetManager {
      * @param string $handle
      * @return void
      */
-    protected function dependency($handle, &$dependens = array()) {
+    protected function dependency($handle, &$dependent = array()) {
         if ($asset = $this->get($handle)) {
             $dependency = $asset->getDependency();
-
             foreach ($dependency as $dep) {
                 if ($this->has($dep)) {
-                    $this->dependency($dep, $dependens);
-
-                    $dependens[$handle] = $asset;
+                    $this->dependency($dep, $dependent);
                 }
+            }
+            
+            if (!array_key_exists($handle, $dependent)) {
+                $dependent[$handle] = $asset;
             }
         }
 
-        return array_unique($dependens);
+        return $dependent;
     }
 }
