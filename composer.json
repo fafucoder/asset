@@ -1,7 +1,6 @@
 {
     "name": "dawn/asset",
     "description": "php load fronted asset",
-    "type": "Library",
     "license": "MIT",
     "authors": [{
         "name": "dawn",
