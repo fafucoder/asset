@@ -3,7 +3,7 @@ Asset类的目的是前端资源的注册器，目的是为了管理资源依赖
 
 ## Install
 ```php
-$ composer install dawn/Asset
+$ composer install dawn/asset
 ```
 
 ## Userage
