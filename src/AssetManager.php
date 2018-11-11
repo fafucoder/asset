@@ -45,10 +45,17 @@ class AssetManager {
     public function register($handle, $asset = array()) {
         if (is_array($handle)) {
             if (array_key_exists('name', $handle)) {
-                $this->register($asset['name'], $handle);
+                $this->register($handle['name'], $handle);
             }
 
-            foreach ($handle as $name => $asset) {
+            foreach ($handle as $name => $handle_asset) {
+                //if is class handle asset is classname
+                if (is_numeric($name)) {
+                    $name = $handle_asset;
+                    $handle_asset = $asset;
+                }
+
+                $asset = array_merge($asset, $handle_asset);
                 $this->register($name, $asset);
             }
         } else {
@@ -67,16 +74,65 @@ class AssetManager {
     /**
      * Deregister asset
      *
-     * @param string $handle
+     * @param string|array $handle
      * 
      * @return void
      */
     public function deregister($handle) {
-        if ($this->has($handle, 'registered')) {
-            unset($this->registered[$handle]);
+        if (is_array($handle)) {
+            foreach ($handle as $h) {
+                $this->deregister($h);
+            }
+        } else {
+            if ($this->has($handle)) {
+                unset($this->registered[$handle]);
+            }
         }
     }
 
+        /**
+     * Enqueue asset
+     *
+     * @param string $handle
+     * @param array $asset
+     * 
+     * @return string
+     */
+    public function enqueue($handle, $asset = array()) {
+        $output = '';
+        if (array_key_exists($handle, $this->enqueued)) {
+            return;
+        }
+
+        if (!array_key_exists($handle, $this->registered)) {
+            $this->register($handle, $asset);
+        }
+
+        $dependency = $this->dependency($handle);
+        foreach ($dependency as $dependent => $asset) {
+            if (array_key_exists($dependent, $this->enqueued)) {
+                continue;
+            }
+
+            $output .= $asset->output();
+            $this->enqueued[$dependent] = $asset;
+        }
+
+        return $output;
+    }
+
+    /**
+     * Dequeue asset.
+     *
+     * @param string $handle
+     * @return void
+     */
+    public function dequeue($handle) {
+        if (isset($this->enqueued[$handle])) {
+            unset($this->enqueued[$handle]);
+        }
+    }
+    
     /**
      * Check if asset registered or enqueued
      *
@@ -110,51 +166,10 @@ class AssetManager {
     }
 
     /**
-     * Enqueue asset
+     * Get handle asset all dependency
      *
      * @param string $handle
-     * @param array $asset
-     * 
-     * @return string
-     */
-    public function enqueue($handle, $asset = array()) {
-        if (array_key_exists($handle, $this->enqueued)) {
-            return $this->enqueued[$handle];
-        }
-
-        $output = '';
-        $this->register($handle, $asset);
-
-        $dependencs = $this->dependency($handle);
-        foreach ($dependencs as $dependent => $asset) {
-            $output .= $asset->render();
-        }
-        $output .= $this->get($handle)->render();
-
-        $this->enqueued[$handle] = $output;
-        return $output;
-    }
-
-    /**
-     * Enqueue asset
-     *
-     * @param array $asset
-     * @return void
-     */
-    public function enqueues($asset = array()) {
-        $output = '';
-        foreach ($asset as $handle => $a) {
-            $output .= $this->enqueue($handle, $a);
-        }
-
-        return $output;
-    }
-
-    /**
-     * Get handle all dependency
-     *
-     * @param string $handle
-     * @return void
+     * @return array
      */
     protected function dependency($handle, &$dependent = array()) {
         if ($asset = $this->get($handle)) {
@@ -164,7 +179,7 @@ class AssetManager {
                     $this->dependency($dep, $dependent);
                 }
             }
-            
+
             if (!array_key_exists($handle, $dependent)) {
                 $dependent[$handle] = $asset;
             }

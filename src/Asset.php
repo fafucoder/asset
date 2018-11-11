@@ -149,11 +149,11 @@ class Asset {
 
 	/**
 	 * 
-	 * Render style and script
+	 * Output style and script
 	 *
 	 * @return void
 	 */
-	public function render() {
+	public function output() {
 		$condition_before = $condition_after = '';
 		if ($this->condition) {
 			$condition_before = "<!--[if {$conditional}]>\n";
@@ -189,6 +189,15 @@ class Asset {
 
 	}
 
+	/**
+	 * Set inline asset
+	 *
+	 * @param mixed $data
+	 * @param string $position
+	 * @param string $type
+	 * 
+	 * @return void
+	 */
 	public function inline($data, $position = 'after', $type = 'js') {
 		$this->inline[$type] = array(
 			'data' => $data,
@@ -196,6 +205,14 @@ class Asset {
 		);
 	}
 
+	/**
+	 * Output inline script
+	 *
+	 * @param array $data
+	 * @param string $inline_before
+	 * @param string $inline_after
+	 * @return array
+	 */
 	public function inlineScript($data = array(), $inline_before = '', $inline_after = '') {
 		$content = '';
 
@@ -212,6 +229,15 @@ class Asset {
 		return array($inline_before, $inline_after);
 	}
 
+	/**
+	 * Output inline style
+	 *
+	 * @param array $data
+	 * @param string $inline_before
+	 * @param string $inline_after
+	 * 
+	 * @return array
+	 */
 	public function inlineStyle($data = array(), $inline_before = '', $inline_after = '') {
 		$content = '';
 		if (isset($data['data'])) {
@@ -227,6 +253,12 @@ class Asset {
 		return array($inline_before, $inline_after);
 	}
 
+	/**
+	 * Output style
+	 *
+	 * @param string $css
+	 * @return string
+	 */
 	public function renderStyle($css) {
 		$css = $this->getAssetPath($css);
 
@@ -237,6 +269,12 @@ class Asset {
 		return sprintf("<link type='text/css' src='%s' media ='%s' />\n", $css, $this->media);
 	}
 
+	/**
+	 * Output script
+	 *
+	 * @param string $js
+	 * @return string
+	 */
 	public function renderScript($js) {
 		$js = $this->getAssetPath($js);
 
@@ -247,6 +285,12 @@ class Asset {
 		return sprintf("<script type='text/javascript' src='%s' %s %s></script>\n", $js, $this->async ? 'async=true' : false, $this->defer ? 'defer=true' : false);
 	}
 
+	/**
+	 * Get asset path
+	 *
+	 * @param string $asset
+	 * @return string
+	 */
 	public function getAssetPath($asset) {
 		if (preg_match("#^(https|http|ftp)?://#", $asset)) {
 			return $asset;
