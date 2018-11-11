@@ -17,6 +17,5 @@
             "Dawn\\": "src/",
             "Dawn\\Tests\\": "tests/"
         }
-    },
-    "minimum-stability": "dev"
+    }
 }
