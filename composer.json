@@ -3,9 +3,7 @@
     "description": "php load fronted asset",
     "license": "MIT",
     "type": "library",
-    "keywords": [
-        "asset"
-    ],
+    "keywords": ["asset"],
     "authors": [{
         "name": "dawn",
         "email": "1960754013@qq.com"
