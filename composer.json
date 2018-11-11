@@ -2,6 +2,10 @@
     "name": "dawn/asset",
     "description": "php load fronted asset",
     "license": "MIT",
+    "type": "library",
+    "keywords": [
+        "asset"
+    ],
     "authors": [{
         "name": "dawn",
         "email": "1960754013@qq.com"
@@ -15,5 +19,6 @@
             "Dawn\\": "src/",
             "Dawn\\Tests\\": "tests/"
         }
-    }
+    },
+    "minimum-stability": "dev"
 }
