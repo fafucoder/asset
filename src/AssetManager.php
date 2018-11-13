@@ -1,5 +1,5 @@
 <?php
-namespace Dawn;
+namespace Dawn\Asset;
 
 class AssetManager {
     /**

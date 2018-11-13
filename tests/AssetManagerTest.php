@@ -1,12 +1,12 @@
 <?php
-namespace Dawn\Tests;
+namespace Dawn\Asset\Tests;
 
-use Dawn\Asset;
-use Dawn\AssetManager;
+use Dawn\Asset\Asset;
+use Dawn\Asset\AssetManager;
 use PHPUnit\Framework\TestCase;
-use Dawn\Tests\Fixtures\Jquery;
-use Dawn\Tests\Fixtures\Bootstrap;
-use Dawn\Tests\Fixtures\React;
+use Dawn\Asset\Tests\Fixtures\Jquery;
+use Dawn\Asset\Tests\Fixtures\Bootstrap;
+use Dawn\Asset\Tests\Fixtures\React;
 
 class AssetManagerTest extends TestCase {
     public function setUp() {

@@ -1,7 +1,7 @@
 <?php
-namespace Dawn\Tests\Fixtures;
+namespace Dawn\Asset\Tests\Fixtures;
 
-use Dawn\Asset;
+use Dawn\Asset\Asset;
 
 class React extends Asset {
     public $name = "react";

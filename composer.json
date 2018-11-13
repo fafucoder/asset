@@ -16,8 +16,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Dawn\\": "src/",
-            "Dawn\\Tests\\": "tests/"
+            "Dawn\\Asset\\": "src/",
+            "Dawn\\Asset\\Tests\\": "tests/"
         }
     }
 }
